@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import json
 
 def fetch_news(keyword):
     url = f'https://search.naver.com/search.naver?where=news&query={keyword}'
@@ -15,42 +16,28 @@ keyword2 = '딥페이크'
 news_titles = fetch_news(keyword1)
 deepfake_titles = fetch_news(keyword2)
 
-html_content = """
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>뉴스 목록</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <h1>뉴스: 고등학교</h1>
-    <ul>
-"""
+news_data = {
+    "고등학교 관련 뉴스": [],
+    "딥페이크 관련 뉴스": []
+}
 
-for idx, title in enumerate(news_titles):
+# 고등학교 관련 뉴스
+for title in news_titles:
     news_title = title.get_text().strip()
     news_link = title['href']
-    html_content += f'<li><a href="{news_link}">{news_title}</a></li>\n'
+    news_data["고등학교 관련 뉴스"].append({
+        "title": news_title,
+        "link": news_link
+    })
 
-html_content += """
-    </ul>
-    <h2>딥페이크 관련 뉴스</h2>
-    <ul>
-"""
-
-for idx, title in enumerate(deepfake_titles[:3]):
+# 딥페이크 관련 뉴스
+for title in deepfake_titles[:5]:
     news_title = title.get_text().strip()
     news_link = title['href']
-    html_content += f'<li><a href="{news_link}">{news_title}</a></li>\n'
+    news_data["딥페이크 관련 뉴스"].append({
+        "title": news_title,
+        "link": news_link
+    })
 
-html_content += """
-    </ul>
-</body>
-</html>
-"""
-
-with open('news_list.html', 'w', encoding='utf-8') as file:
-    file.write(html_content)
+with open('new.json', 'w', encoding='utf-8') as json_file:
+    json.dump(news_data, json_file, ensure_ascii=False, indent=4)
